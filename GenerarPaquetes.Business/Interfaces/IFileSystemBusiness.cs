@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GenerarPaquetes.DAO.Interfaces
+namespace GenerarPaquetes.Business.Interfaces
 {
-    public interface IFileSystemDao
+    public interface IFileSystemBusiness
     {
         void CrearDirectorio(string ruta); //Crea los directorios existentes
         bool ExisteArchivo(string ruta); //Verficia si los archivos existen
