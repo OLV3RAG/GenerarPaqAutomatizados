@@ -2,9 +2,7 @@
 
 namespace GenerarPaquetes.Entities.Domain
 {
-    /// <summary>
-    /// Representa un módulo o aplicación del sistema a empaquetar.
-    /// </summary>
+
     public class ModuloAppEntity
     {
         public string Alias { get; set; } = string.Empty;

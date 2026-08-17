@@ -208,9 +208,6 @@ namespace GenerarPaquetes
             }
         }
 
-        // ===============================================================
-        // LÓGICA INTERNA Y MÉTODOS AUXILIARES
-        // ===============================================================
 
         // Escanea recursivamente el formulario o contenedores buscando CheckBoxes marcados
         private void ObtenerCheckboxesSeleccionados(Control parent, List<string> lista)

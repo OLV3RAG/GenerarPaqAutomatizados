@@ -1,6 +1,4 @@
-﻿using GenerarPaquetes.Entities; // Importa directamente PaqueteEntity
-
-// Creación de la entidad principal
+﻿using GenerarPaquetes.Entities; 
 PaqueteEntity paquete = new PaqueteEntity
 {
     BuildNumber = textBox1.Text.Trim(),
@@ -9,9 +7,7 @@ PaqueteEntity paquete = new PaqueteEntity
 };
 namespace GenerarPaquetes.Entities
 {
-    /// <summary>
-    /// Entidad Principal del Dominio que representa el Paquete UAT a construir.
-    /// </summary>
+
     public class PaqueteEntity
     {
         public string BuildNumber { get; set; } = string.Empty;
