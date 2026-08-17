@@ -249,9 +249,9 @@
             this.checkBox15.AutoSize = true;
             this.checkBox15.Location = new System.Drawing.Point(648, 31);
             this.checkBox15.Name = "checkBox15";
-            this.checkBox15.Size = new System.Drawing.Size(102, 20);
+            this.checkBox15.Size = new System.Drawing.Size(114, 20);
             this.checkBox15.TabIndex = 10;
-            this.checkBox15.Text = "checkBox15";
+            this.checkBox15.Text = "ServiciosMAS";
             this.checkBox15.UseVisualStyleBackColor = true;
             this.checkBox15.CheckedChanged += new System.EventHandler(this.checkBox15_CheckedChanged);
             // 
