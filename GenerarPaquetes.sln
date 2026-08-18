@@ -10,6 +10,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerarPaquetes.DAO", "GenerarPaquetes.DAO\GenerarPaquetes.DAO.csproj", "{A43BB688-8989-41E7-A00E-0CBDC08A5AF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerarPaquetes.Business", "GenerarPaquetes.Business\GenerarPaquetes.Business.csproj", "{6C118776-01B3-4E72-A50D-2B6F66FF8A12}"
+	ProjectSection(ProjectDependencies) = postProject
+		{63BC5F95-A709-4D38-BC96-3BDC30219F97} = {63BC5F95-A709-4D38-BC96-3BDC30219F97}
+		{7EE4083F-374A-4AD0-A354-61DE3823D037} = {7EE4083F-374A-4AD0-A354-61DE3823D037}
+		{A43BB688-8989-41E7-A00E-0CBDC08A5AF0} = {A43BB688-8989-41E7-A00E-0CBDC08A5AF0}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
