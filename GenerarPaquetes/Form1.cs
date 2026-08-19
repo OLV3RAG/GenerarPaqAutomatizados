@@ -30,7 +30,7 @@ namespace GenerarPaquetes
             {
                 PackageBusiness negocio = new PackageBusiness();
                 negocio.EnviarLog = MostrarLog;
-                negocio.GenerarPaquete(datosPaquete);
+                negocio.ProcesarPaquete(datosPaquete);
 
                 MessageBox.Show("Paquete UAT armado con éxito.", "Finalizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
