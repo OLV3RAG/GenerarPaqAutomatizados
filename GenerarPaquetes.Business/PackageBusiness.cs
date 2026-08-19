@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using GenerarPaquetes.DAO;
 using GenerarPaquetes.Entities.DTOs;
@@ -20,26 +19,21 @@ namespace GenerarPaquetes.Business
         {
             try
             {
-                EnviarLog?.Invoke("Iniciando validaciones...");
+                EnviarLog?.Invoke("--- INICIANDO GENERACIÓN DE PAQUETE ---");
 
-                // 1. Obtener rutas base desde el DAO
-                string rutaBaseDocs = _dao.ObtenerRutaDocumentos();
-                string rutaBaseTFS = _dao.ObtenerRutaTFS();
+                string rutaDocs = _dao.ObtenerRutaDocumentos();
+                string rutaTfs = _dao.ObtenerRutaTFS();
 
-                // 2. Validar o crear la carpeta de destino
-                if (!_dao.ExisteDirectorio(request.DestinationPath))
-                {
-                    _dao.CrearDirectorio(request.DestinationPath);
-                    EnviarLog?.Invoke($"Carpeta de destino creada: {request.DestinationPath}");
-                }
+                // 1. Asegurar carpeta de destino
+                _dao.CrearDirectorio(request.DestinationPath);
 
-                // 3. Copiar documentos base (Excel, Instrucciones, etc.)
-                CopiarDocumentosBase(rutaBaseDocs, request.DestinationPath);
+                // 2. Copiar documentos base
+                CopiarDocumentosBase(rutaDocs, request.DestinationPath);
 
-                // 4. Procesar cada módulo/aplicativo seleccionado
+                // 3. Procesar aplicativos
                 foreach (var app in request.SelectedApps)
                 {
-                    ProcesarModulo(app, request.BuildNumber, rutaBaseTFS, request.DestinationPath);
+                    ProcesarModulo(app, request.BuildNumber, rutaTfs, request.DestinationPath);
                 }
 
                 EnviarLog?.Invoke("--- PROCESO TERMINADO CON ÉXITO ---");
@@ -53,45 +47,44 @@ namespace GenerarPaquetes.Business
 
         private void CopiarDocumentosBase(string rutaDocs, string rutaDestino)
         {
-            string archivoExcelOrigen = Path.Combine(rutaDocs, "Q-MexFile.xlsx");
-            string archivoExcelDestino = Path.Combine(rutaDestino, "Declaracion de Indisponibilidad de URLs Q3_Q42025 - MEX.xlsx");
+            // Archivo Excel Q-Mex
+            string excelOrigen = Path.Combine(rutaDocs, "Q-MexFile.xlsx");
+            string excelDestino = Path.Combine(rutaDestino, "Declaracion de Indisponibilidad de URLs Q3_Q42025 - MEX.xlsx");
 
-            if (_dao.ExisteArchivo(archivoExcelOrigen))
+            if (_dao.ExisteArchivo(excelOrigen))
             {
-                _dao.CopiarArchivo(archivoExcelOrigen, archivoExcelDestino, true);
-                EnviarLog?.Invoke("Archivo Excel copiado correctamente.");
+                _dao.CopiarArchivo(excelOrigen, excelDestino, true);
+                EnviarLog?.Invoke("[OK] Excel Q-Mex copiado.");
             }
             else
             {
-                EnviarLog?.Invoke("[AVISO] No se encontró la plantilla de Excel en el origen.");
+                EnviarLog?.Invoke($"[AVISO] No se encontró: {excelOrigen}");
+            }
+
+            // Archivo de Instrucciones (si existe en la carpeta base)
+            string instOrigen = Path.Combine(rutaDocs, "InstruccionesLiberacion.txt");
+            string instDestino = Path.Combine(rutaDestino, "InstruccionesLiberacion.txt");
+
+            if (_dao.ExisteArchivo(instOrigen))
+            {
+                _dao.CopiarArchivo(instOrigen, instDestino, true);
+                EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt copiado.");
             }
         }
 
         private void ProcesarModulo(string app, string build, string rutaTfs, string rutaDestino)
         {
-            EnviarLog?.Invoke($"Procesando aplicativo: {app}...");
-
-            string carpetaOrigenBuild = Path.Combine(rutaTfs, build, app);
+            string carpetaOrigenApp = Path.Combine(rutaTfs, build, app);
             string carpetaDestinoApp = Path.Combine(rutaDestino, app);
 
-            if (_dao.ExisteDirectorio(carpetaOrigenBuild))
+            if (_dao.ExisteDirectorio(carpetaOrigenApp))
             {
-                _dao.CrearDirectorio(carpetaDestinoApp);
-
-                string[] archivos = _dao.ObtenerArchivos(carpetaOrigenBuild, "*.*");
-                foreach (var archivo in archivos)
-                {
-                    string nombreArchivo = Path.GetFileName(archivo);
-                    string destinoFinal = Path.Combine(carpetaDestinoApp, nombreArchivo);
-
-                    _dao.CopiarArchivo(archivo, destinoFinal, true);
-                }
-
-                EnviarLog?.Invoke($"[OK] {app} copiado correctamente ({archivos.Length} archivos).");
+                _dao.CopiarDirectorioRecursivo(carpetaOrigenApp, carpetaDestinoApp);
+                EnviarLog?.Invoke($"[OK] Aplicativo copiado con éxito: {app}");
             }
             else
             {
-                EnviarLog?.Invoke($"[OMITIDO] No se encontró la carpeta para {app} en la Build {build}.");
+                EnviarLog?.Invoke($"[OMITIDO] No existe la ruta de origen: {carpetaOrigenApp}");
             }
         }
     }

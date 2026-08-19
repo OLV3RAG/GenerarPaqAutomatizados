@@ -1,5 +1,4 @@
-﻿using NLog.Internal;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 
@@ -7,18 +6,9 @@ namespace GenerarPaquetes.DAO
 {
     public class PackageDao
     {
-        // Las rutas se configuran desde el Appconfig del proyecto GenerarPaquetesPage
-        public string ObtenerRutaDocumentos()
-        {
-            return ConfigurationManager.AppSettings["RutaDocumentos"] ?? string.Empty;
-        }
+        public string ObtenerRutaDocumentos() => ConfigurationManager.AppSettings["RutaDocumentos"] ?? string.Empty;
+        public string ObtenerRutaTFS() => ConfigurationManager.AppSettings["RutaTFS"] ?? string.Empty;
 
-        public string ObtenerRutaTFS()
-        {
-            return ConfigurationManager.AppSettings["RutaTFS"] ?? string.Empty;
-        }
-
-        // Verificación y gestión de carpetas
         public bool ExisteDirectorio(string ruta) => Directory.Exists(ruta);
 
         public void CrearDirectorio(string ruta)
@@ -29,14 +19,6 @@ namespace GenerarPaquetes.DAO
             }
         }
 
-        public string[] ObtenerDirectorios(string ruta, string patron = "*", SearchOption opcion = SearchOption.TopDirectoryOnly)
-        {
-            return Directory.Exists(ruta)
-                ? Directory.GetDirectories(ruta, patron, opcion)
-                : new string[0];
-        }
-
-        // Verificación y gestión de archivos
         public bool ExisteArchivo(string ruta) => File.Exists(ruta);
 
         public void CopiarArchivo(string origen, string destino, bool sobrescribir = true)
@@ -44,23 +26,22 @@ namespace GenerarPaquetes.DAO
             File.Copy(origen, destino, sobrescribir);
         }
 
-        public string[] ObtenerArchivos(string ruta, string patron = "*.*")
+        // Copia recursiva de carpetas y subcarpetas
+        public void CopiarDirectorioRecursivo(string origen, string destino)
         {
-            return Directory.Exists(ruta)
-                ? Directory.GetFiles(ruta, patron)
-                : new string[0];
-        }
+            CrearDirectorio(destino);
 
-        public string[] LeerLineasArchivo(string ruta)
-        {
-            return File.Exists(ruta)
-                ? File.ReadAllLines(ruta)
-                : new string[0];
-        }
+            foreach (string archivo in Directory.GetFiles(origen))
+            {
+                string nombre = Path.GetFileName(archivo);
+                File.Copy(archivo, Path.Combine(destino, nombre), true);
+            }
 
-        public void EscribirLineasArchivo(string ruta, IEnumerable<string> lineas)
-        {
-            File.WriteAllLines(ruta, lineas);
+            foreach (string subDirectorio in Directory.GetDirectories(origen))
+            {
+                string nombreSub = Path.GetFileName(subDirectorio);
+                CopiarDirectorioRecursivo(subDirectorio, Path.Combine(destino, nombreSub));
+            }
         }
     }
 }
