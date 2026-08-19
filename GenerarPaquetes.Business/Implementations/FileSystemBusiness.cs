@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GenerarPaquetes.Business.Helpers;
 using GenerarPaquetes.Business.Interfaces;
+using System.IO;
 
 namespace GenerarPaquetes.Business.Implementations
 {
