@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.14.37516.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerarPaquetesPage", "GenerarPaquetes\GenerarPaquetesPage.csproj", "{7EE4083F-374A-4AD0-A354-61DE3823D037}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A43BB688-8989-41E7-A00E-0CBDC08A5AF0} = {A43BB688-8989-41E7-A00E-0CBDC08A5AF0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerarPaquetes.Entities", "GenerarPaquetes.Entities\GenerarPaquetes.Entities.csproj", "{63BC5F95-A709-4D38-BC96-3BDC30219F97}"
 EndProject

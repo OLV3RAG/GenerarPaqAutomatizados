@@ -79,5 +79,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GenerarPaquetes.Entities\GenerarPaquetes.Entities.csproj">
+      <Project>{63bc5f95-a709-4d38-bc96-3bdc30219f97}</Project>
+      <Name>GenerarPaquetes.Entities</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

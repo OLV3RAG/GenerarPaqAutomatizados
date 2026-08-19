@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GenerarPaquetes.DAO\GenerarPaquetes.DAO.csproj" />
+  </ItemGroup>
+
 </Project>

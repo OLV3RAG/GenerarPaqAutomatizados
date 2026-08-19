@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GenerarPaquetes.DAO\GenerarPaquetes.DAO.csproj" />
     <ProjectReference Include="..\GenerarPaquetes.Entities\GenerarPaquetes.Entities.csproj" />
+    <ProjectReference Include="..\GenerarPaquetes\GenerarPaquetesPage.csproj" />
   </ItemGroup>
 
 </Project>
