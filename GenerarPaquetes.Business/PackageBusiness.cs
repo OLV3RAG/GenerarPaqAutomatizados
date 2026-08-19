@@ -16,8 +16,7 @@ namespace GenerarPaquetes.Business
         private readonly ITfsMockBusiness _tfsMock;
         private string rutaDocs = "C:\\Users\\DAY-V\\Desktop\\Estructura_Completa_PruebasUAT\\GenerarPaqUAT";
         private string rutaTfs = "C:\\Users\\DAY-V\\Desktop\\Estructura_Completa_PruebasUAT\\TFS_Mock";
-        private Action<string> Enviarlog;
-
+        public Action<string>? EnviarLog { get; set; }
         public PackageBusiness()
         {
             _fileSystem = new FileSystemBusiness();
@@ -190,9 +189,9 @@ namespace GenerarPaquetes.Business
         }
         private void EmitirLog(string msj)
         {
-            if(Enviarlog != null)
+            if(EnviarLog != null)
             {
-                Enviarlog(msj);
+                EnviarLog(msj);
             }
         }
     }

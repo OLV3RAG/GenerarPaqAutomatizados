@@ -8,7 +8,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\GenerarPaquetes.Entities\GenerarPaquetes.Entities.csproj" />
-		<ProjectReference Include="..\GenerarPaquetes.Business\GenerarPaquetes.Business.csproj" />
 	</ItemGroup>
 
 </Project>

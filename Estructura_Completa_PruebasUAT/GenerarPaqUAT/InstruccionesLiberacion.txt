@@ -1,0 +1,5 @@
+﻿Inicio de instruccion
+Pasos previos: step1
+Ruta de trabajo: destino
+Pasos de reversion: step2
+Fin de instruccion
