@@ -20,50 +20,98 @@ namespace GenerarPaquetes.Business
         {
             try
             {
-                EnviarLog?.Invoke("--- INICIANDO GENERACIÓN DE PAQUETE ---");
+                EnviarLog?.Invoke("=== INICIANDO GENERACIÓN DE PAQUETE UAT ===");
 
                 string rutaDocs = _dao.ObtenerRutaDocumentos();
-                string rutaTfs = _dao.ObtenerRutaTFS();
+                string rutaUatApps = _dao.ObtenerRutaTFS();
+                string rutaRunbooks = _dao.ObtenerRutaRunbooks();
 
-                // 1. Crear carpeta destino si no existe
+                // 1. Asegurar carpeta destino
                 _dao.CrearDirectorio(request.DestinationPath);
+                EnviarLog?.Invoke($"Destino: {request.DestinationPath}");
 
-                // 2. Copiar Excel Q-Mex únicamente
-                string excelOrigen = Path.Combine(rutaDocs, "Q-MexFile.xlsx");
-                string excelDestino = Path.Combine(request.DestinationPath, "Declaracion de Indisponibilidad de URLs Q3_Q42025 - MEX.xlsx");
+                // 2. Copiar Excel Q-Mex
+                CopiarExcelQMex(rutaDocs, request.DestinationPath);
 
-                if (_dao.ExisteArchivo(excelOrigen))
-                {
-                    _dao.CopiarArchivo(excelOrigen, excelDestino, true);
-                    EnviarLog?.Invoke("[OK] Excel Q-Mex copiado.");
-                }
+                // 3. Copiar Runbooks completos a la carpeta destino
+                CopiarCarpetaRunbooks(rutaRunbooks, request.DestinationPath);
 
-                // 3. Procesar y reemplazar archivo de Instrucciones
+                // 4. Generar y personalizar InstruccionesLiberacion.txt
                 ProcesarInstrucciones(rutaDocs, request);
 
-                // 4. Copiar aplicativos seleccionados
+                // 5. Copiar los aplicativos seleccionados desde la carpeta UAT
                 foreach (var app in request.SelectedApps)
                 {
-                    string carpetaOrigenApp = Path.Combine(rutaTfs, request.BuildNumber, app);
-                    string carpetaDestinoApp = Path.Combine(request.DestinationPath, app);
-
-                    if (_dao.ExisteDirectorio(carpetaOrigenApp))
-                    {
-                        _dao.CopiarDirectorioRecursivo(carpetaOrigenApp, carpetaDestinoApp);
-                        EnviarLog?.Invoke($"[OK] Aplicativo copiado: {app}");
-                    }
-                    else
-                    {
-                        EnviarLog?.Invoke($"[OMITIDO] No existe carpeta: {carpetaOrigenApp}");
-                    }
+                    CopiarModuloAplicativo(app, request.BuildNumber, rutaUatApps, request.DestinationPath);
                 }
 
-                EnviarLog?.Invoke("--- PROCESO TERMINADO CON ÉXITO ---");
+                EnviarLog?.Invoke("=== PROCESO FINALIZADO CON ÉXITO ===");
             }
             catch (Exception ex)
             {
                 EnviarLog?.Invoke($"[ERROR CRÍTICO]: {ex.Message}");
                 throw;
+            }
+        }
+
+        private void CopiarExcelQMex(string rutaDocs, string rutaDestino)
+        {
+            string excelOrigen = Path.Combine(rutaDocs, "Q-MexFile.xlsx");
+            string excelDestino = Path.Combine(rutaDestino, "Declaracion de Indisponibilidad de URLs Q3_Q42025 - MEX.xlsx");
+
+            if (_dao.ExisteArchivo(excelOrigen))
+            {
+                _dao.CopiarArchivo(excelOrigen, excelDestino, true);
+                EnviarLog?.Invoke("[OK] Archivo Excel Q-Mex copiado.");
+            }
+            else
+            {
+                EnviarLog?.Invoke($"[AVISO] No se encontró Excel en: {excelOrigen}");
+            }
+        }
+
+        private void CopiarCarpetaRunbooks(string rutaRunbooks, string rutaDestino)
+        {
+            if (_dao.ExisteDirectorio(rutaRunbooks))
+            {
+                string destinoRunbooks = Path.Combine(rutaDestino, "Runbooks");
+                _dao.CopiarDirectorioRecursivo(rutaRunbooks, destinoRunbooks);
+                EnviarLog?.Invoke("[OK] Carpeta Runbooks copiada exitosamente.");
+            }
+            else
+            {
+                EnviarLog?.Invoke($"[AVISO] No se encontró la carpeta de Runbooks en: {rutaRunbooks}");
+            }
+        }
+
+        private void CopiarModuloAplicativo(string app, string build, string rutaBaseUat, string rutaDestino)
+        {
+            // Opciones de estructura comunes:
+            // 1. UAT \ Build \ App
+            string rutaOpcion1 = Path.Combine(rutaBaseUat, build, app);
+            // 2. UAT \ App \ Build
+            string rutaOpcion2 = Path.Combine(rutaBaseUat, app, build);
+            // 3. UAT \ App (directa)
+            string rutaOpcion3 = Path.Combine(rutaBaseUat, app);
+
+            string rutaOrigenFinal = string.Empty;
+
+            if (_dao.ExisteDirectorio(rutaOpcion1))
+                rutaOrigenFinal = rutaOpcion1;
+            else if (_dao.ExisteDirectorio(rutaOpcion2))
+                rutaOrigenFinal = rutaOpcion2;
+            else if (_dao.ExisteDirectorio(rutaOpcion3))
+                rutaOrigenFinal = rutaOpcion3;
+
+            if (!string.IsNullOrEmpty(rutaOrigenFinal))
+            {
+                string carpetaDestinoApp = Path.Combine(rutaDestino, app);
+                _dao.CopiarDirectorioRecursivo(rutaOrigenFinal, carpetaDestinoApp);
+                EnviarLog?.Invoke($"[OK] {app} copiado correctamente desde: {rutaOrigenFinal}");
+            }
+            else
+            {
+                EnviarLog?.Invoke($"[OMITIDO] No se encontró carpeta para '{app}'. (Ruta evaluada: {rutaOpcion1})");
             }
         }
 
@@ -83,7 +131,6 @@ namespace GenerarPaquetes.Business
             List<string> listaStep1 = new List<string>();
             List<string> listaStep2 = new List<string>();
 
-            // 1. Detectar si se seleccionó WebAPI / API
             bool contieneApi = request.SelectedApps.Exists(a =>
                 a.IndexOf("WebAPI", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 a.IndexOf("API", StringComparison.OrdinalIgnoreCase) >= 0);
@@ -94,7 +141,6 @@ namespace GenerarPaquetes.Business
                 listaStep2.Add("Plan de reversion, restaurar SnapShot del servidor 10.110.10.175 generado en el paso 1");
             }
 
-            // 2. Detectar si se seleccionó SIAP / Runbooks
             bool contieneSiap = request.SelectedApps.Exists(a =>
                 a.IndexOf("SIAP", StringComparison.OrdinalIgnoreCase) >= 0);
 
@@ -104,7 +150,6 @@ namespace GenerarPaquetes.Business
                 listaStep2.Add("Plan de reversion, restaurar el respaldo generado en el paso 1 de cada runbook");
             }
 
-            // 3. Formatear el contenido de los pasos
             string resultadoStep1 = listaStep1.Count > 0
                 ? string.Join(Environment.NewLine + "               ", listaStep1)
                 : "N/A";
@@ -113,14 +158,12 @@ namespace GenerarPaquetes.Business
                 ? string.Join(Environment.NewLine + "                   ", listaStep2)
                 : "N/A";
 
-            // 4. Reemplazar las palabras clave exactas del archivo .txt
             texto = texto.Replace("destino", request.DestinationPath);
             texto = texto.Replace("step1", resultadoStep1);
             texto = texto.Replace("step2", resultadoStep2);
 
-            // 5. Guardar en destino
             _dao.EscribirTexto(destino, texto);
-            EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado con las descripciones técnicas.");
+            EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado y reemplazado.");
         }
     }
 }

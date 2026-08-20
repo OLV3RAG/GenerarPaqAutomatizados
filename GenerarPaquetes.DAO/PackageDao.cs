@@ -7,7 +7,7 @@ namespace GenerarPaquetes.DAO
     {
         public string ObtenerRutaDocumentos() => ConfigurationManager.AppSettings["RutaDocumentos"] ?? string.Empty;
         public string ObtenerRutaTFS() => ConfigurationManager.AppSettings["RutaTFS"] ?? string.Empty;
-
+        public string ObtenerRutaRunbooks() => ConfigurationManager.AppSettings["RutaRunbooks"] ?? string.Empty;
         public bool ExisteDirectorio(string ruta) => Directory.Exists(ruta);
 
         public void CrearDirectorio(string ruta)
