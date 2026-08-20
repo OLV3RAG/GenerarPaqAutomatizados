@@ -86,20 +86,6 @@ namespace GenerarPaquetes.Business
                 _dao.CrearDirectorio(request.DestinationPath);
                 EnviarLog?.Invoke($"Destino: {request.DestinationPath}");
 
-                // Creación de carpetas DB
-                bool tieneBD = request.SelectedApps.Exists(a =>
-                    a.Equals("BD", StringComparison.OrdinalIgnoreCase) ||
-                    a.Equals("BD_MAS", StringComparison.OrdinalIgnoreCase));
-
-                if (tieneBD)
-                {
-                    string rutaDBScripts = Path.Combine(request.DestinationPath, "DB", "Scripts");
-                    string rutaDBSp = Path.Combine(request.DestinationPath, "DB", "StoredProcedures");
-                    _dao.CrearDirectorio(rutaDBScripts);
-                    _dao.CrearDirectorio(rutaDBSp);
-                    EnviarLog?.Invoke("[OK] Estructura DB creada (DB\\Scripts y DB\\StoredProcedures).");
-                }
-
                 CopiarExcelQMex(rutaDocs, request.DestinationPath);
                 ProcesarInstrucciones(rutaDocs, request);
 
@@ -107,16 +93,25 @@ namespace GenerarPaquetes.Business
                 {
                     EnviarLog?.Invoke($"--- Procesando: {app} ---");
 
-                    // Si es BD o BD_MAS solo copia su Runbook, no busca aplicaciones en UAT
-                    if (app.Equals("BD", StringComparison.OrdinalIgnoreCase) || app.Equals("BD_MAS", StringComparison.OrdinalIgnoreCase))
+                    // CONDICIÓN ESPECÍFICA BD (SIAP)
+                    if (app.Equals("BD", StringComparison.OrdinalIgnoreCase))
                     {
-                        CopiarRunbookEspecifico(app, rutaRunbooks, request.DestinationPath);
+                        CrearEstructuraBaseDatos(request.DestinationPath);
+                        CopiarRunbookEspecifico("BD", rutaRunbooks, request.DestinationPath);
+                        continue;
                     }
-                    else
+
+                    // CONDICIÓN ESPECÍFICA BD_MAS
+                    if (app.Equals("BD_MAS", StringComparison.OrdinalIgnoreCase))
                     {
-                        CopiarModuloAplicativo(app, request.BuildNumber, rutaUatApps, request.DestinationPath);
-                        CopiarRunbookEspecifico(app, rutaRunbooks, request.DestinationPath);
+                        CrearEstructuraBaseDatos(request.DestinationPath);
+                        CopiarRunbookEspecifico("BD_MAS", rutaRunbooks, request.DestinationPath);
+                        continue;
                     }
+
+                    // RESTO DE APLICATIVOS
+                    CopiarModuloAplicativo(app, request.BuildNumber, rutaUatApps, request.DestinationPath);
+                    CopiarRunbookEspecifico(app, rutaRunbooks, request.DestinationPath);
                 }
 
                 EnviarLog?.Invoke("=== PROCESO FINALIZADO CON ÉXITO ===");
@@ -126,6 +121,17 @@ namespace GenerarPaquetes.Business
                 EnviarLog?.Invoke($"[ERROR CRÍTICO]: {ex.Message}");
                 throw;
             }
+        }
+
+        private void CrearEstructuraBaseDatos(string rutaDestino)
+        {
+            string rutaDBScripts = Path.Combine(rutaDestino, "DB", "Scripts");
+            string rutaDBSp = Path.Combine(rutaDestino, "DB", "StoredProcedures");
+
+            _dao.CrearDirectorio(rutaDBScripts);
+            _dao.CrearDirectorio(rutaDBSp);
+
+            EnviarLog?.Invoke("[OK] Generados directorios: DB\\Scripts y DB\\StoredProcedures");
         }
 
         private string NormalizarRuta(string ruta)

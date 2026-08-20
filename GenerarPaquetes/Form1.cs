@@ -111,7 +111,7 @@ namespace GenerarPaquetes
             }
             if (check_BD_SIAP.Checked)
             {
-                modulosSeleccionados.Add("BD_SIAP");
+                modulosSeleccionados.Add("BD");
             }
             if (check_BD_MAS.Checked)
             {
