@@ -187,6 +187,22 @@ namespace GenerarPaquetes
                 }
             }
         }
+        private void LimpiarCheckboxes(Control contenedor)
+        {
+            foreach (Control ctrl in contenedor.Controls)
+            {
+                if (ctrl is CheckBox chk)
+                {
+                    chk.Checked = false;
+                }
+
+                // Si el control contiene otros controles (como GroupBox, Panel, TabControl), busca dentro
+                if (ctrl.HasChildren)
+                {
+                    LimpiarCheckboxes(ctrl);
+                }
+            }
+        }
 
         private void btn_TemplatePaquete_Click(object sender, EventArgs e)
         {

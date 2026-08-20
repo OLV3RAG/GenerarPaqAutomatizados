@@ -127,9 +127,11 @@ namespace GenerarPaquetes.Business
         {
             string rutaDBScripts = Path.Combine(rutaDestino, "DB", "Scripts");
             string rutaDBSp = Path.Combine(rutaDestino, "DB", "StoredProcedures");
+            string rutaDBFunciones = Path.Combine(rutaDestino, "DB", "Funciones");
 
             _dao.CrearDirectorio(rutaDBScripts);
             _dao.CrearDirectorio(rutaDBSp);
+            _dao.CrearDirectorio(rutaDBFunciones);
 
             EnviarLog?.Invoke("[OK] Generados directorios: DB\\Scripts y DB\\StoredProcedures");
         }
