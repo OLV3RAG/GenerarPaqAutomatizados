@@ -84,8 +84,8 @@ namespace GenerarPaquetes.Business
                 EnviarLog?.Invoke($"Destino: {request.DestinationPath}");
 
                 bool requiereBD = request.SelectedApps.Exists(a =>
-                    a.IndexOf("BD", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    a.IndexOf("SIAP", StringComparison.OrdinalIgnoreCase) >= 0);
+                    a.Equals("BD", StringComparison.OrdinalIgnoreCase) ||
+                    a.Equals("BD_MAS", StringComparison.OrdinalIgnoreCase));
 
                 if (requiereBD)
                 {
