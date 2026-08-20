@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
 using System.IO;
 
 namespace GenerarPaquetes.DAO
@@ -26,7 +25,16 @@ namespace GenerarPaquetes.DAO
             File.Copy(origen, destino, sobrescribir);
         }
 
-        // Copia recursiva de carpetas y subcarpetas
+        public string LeerTexto(string ruta)
+        {
+            return File.Exists(ruta) ? File.ReadAllText(ruta) : string.Empty;
+        }
+
+        public void EscribirTexto(string ruta, string contenido)
+        {
+            File.WriteAllText(ruta, contenido);
+        }
+
         public void CopiarDirectorioRecursivo(string origen, string destino)
         {
             CrearDirectorio(destino);
