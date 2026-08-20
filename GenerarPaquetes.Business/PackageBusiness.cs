@@ -243,53 +243,46 @@ namespace GenerarPaquetes.Business
                 return;
             }
 
-            string texto = _dao.LeerTexto(origen);
+            string descStepOneAPI = "Generar SnapShot del servidor 10.110.10.175";
+            string descStepTwoAPI = "Plan de reversion, restaurar SnapShot del servidor 10.110.10.175 generado en el paso 1";
+            string descSIAP = "Cada Runbook contiene su paso de respaldo";
+            string descStepTwoSIAP = "Plan de reversion, restaurar el respaldo generado en el paso 1 de cada runbook";
 
-            List<string> listaStep1 = new List<string>();
-            List<string> listaStep2 = new List<string>();
-
-            bool contieneApiOpdf = request.SelectedApps.Exists(a =>
-                a.IndexOf("API", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            // Evaluar si contiene DatosFiscales / PDFiscales o WebAPI / API
+            bool esPdf = request.SelectedApps.Exists(a =>
+                a.IndexOf("DatosFiscales", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 a.IndexOf("PDFiscales", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 a.IndexOf("Fiscal", StringComparison.OrdinalIgnoreCase) >= 0);
 
-            if (contieneApiOpdf)
+            bool esApi = request.SelectedApps.Exists(a =>
+                a.IndexOf("WebAPI", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                a.IndexOf("API", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                a.IndexOf("PortalAPIRest", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                a.IndexOf("IDCSIAPApi", StringComparison.OrdinalIgnoreCase) >= 0);
+
+            string textoStep1;
+            string textoStep2;
+
+            if (esPdf || esApi)
             {
-                listaStep1.Add("Generar SnapShot del servidor 10.110.10.175");
-                listaStep2.Add("Plan de reversion, restaurar SnapShot del servidor 10.110.10.175 generado en el paso 1");
+                textoStep1 = descStepOneAPI;
+                textoStep2 = descStepTwoAPI;
+            }
+            else
+            {
+                textoStep1 = descSIAP;
+                textoStep2 = descStepTwoSIAP;
             }
 
-            bool contieneSiap = request.SelectedApps.Exists(a =>
-                a.IndexOf("SIAP", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                a.IndexOf("BServiceSIAP", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                a.IndexOf("IDCSIAP", StringComparison.OrdinalIgnoreCase) >= 0);
+            string contenido = _dao.LeerTexto(origen);
 
-            if (contieneSiap)
-            {
-                listaStep1.Add("Cada Runbook contiene su paso de respaldo");
-                listaStep2.Add("Plan de reversion, restaurar el respaldo generado en el paso 1 de cada runbook");
-            }
+            // Reemplazos de etiquetas respetando mayúsculas y minúsculas
+            contenido = contenido.Replace("step1", textoStep1);
+            contenido = contenido.Replace("step2", textoStep2);
+            contenido = contenido.Replace("destino", request.DestinationPath);
 
-            if (listaStep1.Count == 0 && request.SelectedApps.Count > 0)
-            {
-                listaStep1.Add($"Respaldar versión productiva actual de: {string.Join(", ", request.SelectedApps)}");
-                listaStep2.Add("Plan de reversión, restaurar los respaldos generados en el paso 1");
-            }
-
-            string resultadoStep1 = listaStep1.Count > 0
-                ? string.Join(Environment.NewLine + "               ", listaStep1)
-                : "Sin pasos previos requeridos";
-
-            string resultadoStep2 = listaStep2.Count > 0
-                ? string.Join(Environment.NewLine + "                   ", listaStep2)
-                : "Sin pasos de reversión requeridos";
-
-            texto = texto.Replace("destino", request.DestinationPath);
-            texto = texto.Replace("step1", resultadoStep1);
-            texto = texto.Replace("step2", resultadoStep2);
-
-            _dao.EscribirTexto(destino, texto);
-            EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado con éxito.");
+            _dao.EscribirTexto(destino, contenido);
+            EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado y reemplazado con éxito.");
         }
     }
 }
