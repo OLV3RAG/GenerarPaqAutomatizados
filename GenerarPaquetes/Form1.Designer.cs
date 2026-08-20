@@ -62,6 +62,8 @@
             this.btn_CrearPaquete = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.txt_TerminalOutput = new System.Windows.Forms.TextBox();
+            this.check_BD_SIAP = new System.Windows.Forms.CheckBox();
+            this.check_BD_MAS = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -301,6 +303,8 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.check_BD_MAS);
+            this.panel1.Controls.Add(this.check_BD_SIAP);
             this.panel1.Controls.Add(this.check_ServIntPermisos);
             this.panel1.Controls.Add(this.check_ServMAS);
             this.panel1.Controls.Add(this.check_WSCLPortAgt);
@@ -342,7 +346,7 @@
             // check_ServMAS
             // 
             this.check_ServMAS.AutoSize = true;
-            this.check_ServMAS.Location = new System.Drawing.Point(1174, 159);
+            this.check_ServMAS.Location = new System.Drawing.Point(1174, 85);
             this.check_ServMAS.Name = "check_ServMAS";
             this.check_ServMAS.Size = new System.Drawing.Size(114, 20);
             this.check_ServMAS.TabIndex = 23;
@@ -353,7 +357,7 @@
             // check_WSCLPortAgt
             // 
             this.check_WSCLPortAgt.AutoSize = true;
-            this.check_WSCLPortAgt.Location = new System.Drawing.Point(1132, 309);
+            this.check_WSCLPortAgt.Location = new System.Drawing.Point(1132, 159);
             this.check_WSCLPortAgt.Name = "check_WSCLPortAgt";
             this.check_WSCLPortAgt.Size = new System.Drawing.Size(156, 20);
             this.check_WSCLPortAgt.TabIndex = 22;
@@ -417,6 +421,26 @@
             this.txt_TerminalOutput.Size = new System.Drawing.Size(1354, 253);
             this.txt_TerminalOutput.TabIndex = 10;
             // 
+            // check_BD_SIAP
+            // 
+            this.check_BD_SIAP.AutoSize = true;
+            this.check_BD_SIAP.Location = new System.Drawing.Point(1132, 233);
+            this.check_BD_SIAP.Name = "check_BD_SIAP";
+            this.check_BD_SIAP.Size = new System.Drawing.Size(81, 20);
+            this.check_BD_SIAP.TabIndex = 25;
+            this.check_BD_SIAP.Text = "BD SIAP";
+            this.check_BD_SIAP.UseVisualStyleBackColor = true;
+            // 
+            // check_BD_MAS
+            // 
+            this.check_BD_MAS.AutoSize = true;
+            this.check_BD_MAS.Location = new System.Drawing.Point(1132, 309);
+            this.check_BD_MAS.Name = "check_BD_MAS";
+            this.check_BD_MAS.Size = new System.Drawing.Size(80, 20);
+            this.check_BD_MAS.TabIndex = 26;
+            this.check_BD_MAS.Text = "BD MAS";
+            this.check_BD_MAS.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -478,6 +502,8 @@
         private System.Windows.Forms.Button btn_CrearPaquete;
         private System.Windows.Forms.Label label5;
         public System.Windows.Forms.TextBox txt_TerminalOutput;
+        private System.Windows.Forms.CheckBox check_BD_MAS;
+        private System.Windows.Forms.CheckBox check_BD_SIAP;
     }
 }
 

@@ -109,9 +109,17 @@ namespace GenerarPaquetes
             {
                 modulosSeleccionados.Add("IAdi");
             }
-        
+            if (check_BD_SIAP.Checked)
+            {
+                modulosSeleccionados.Add("BD_SIAP");
+            }
+            if (check_BD_MAS.Checked)
+            {
+                modulosSeleccionados.Add("BD_MAS");
+            }
 
-        PaqueteUatRequestDto datosPaquete = new PaqueteUatRequestDto();
+
+            PaqueteUatRequestDto datosPaquete = new PaqueteUatRequestDto();
             datosPaquete.BuildNumber = txt_BuildTFS.Text.Trim();
             datosPaquete.DestinationPath = txt_pathDestino.Text;
             datosPaquete.SelectedApps = modulosSeleccionados;

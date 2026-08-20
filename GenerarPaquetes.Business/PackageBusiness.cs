@@ -81,6 +81,19 @@ namespace GenerarPaquetes.Business
                 _dao.CrearDirectorio(request.DestinationPath);
                 EnviarLog?.Invoke($"Destino: {request.DestinationPath}");
 
+                bool requiereBD = request.SelectedApps.Exists(a =>
+                    a.IndexOf("BD", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    a.IndexOf("SIAP", StringComparison.OrdinalIgnoreCase) >= 0);
+
+                if (requiereBD)
+                {
+                    string rutaDBScripts = Path.Combine(request.DestinationPath, "DB", "Scripts");
+                    string rutaDBSp = Path.Combine(request.DestinationPath, "DB", "StoredProcedures");
+                    _dao.CrearDirectorio(rutaDBScripts);
+                    _dao.CrearDirectorio(rutaDBSp);
+                    EnviarLog?.Invoke("[OK] Estructura de carpetas DB (Scripts/StoredProcedures) creada.");
+                }
+
                 CopiarExcelQMex(rutaDocs, request.DestinationPath);
                 ProcesarInstrucciones(rutaDocs, request);
 
