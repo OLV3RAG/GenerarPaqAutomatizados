@@ -180,8 +180,9 @@ namespace GenerarPaquetes
             }
         }
 
+        private void btn_TemplatePaquete_Click(object sender, EventArgs e)
+        {
 
-       
-
+        }
     }
 }

@@ -117,6 +117,7 @@
             this.btn_TemplatePaquete.TabIndex = 5;
             this.btn_TemplatePaquete.Text = "Paquete Template";
             this.btn_TemplatePaquete.UseVisualStyleBackColor = true;
+            this.btn_TemplatePaquete.Click += new System.EventHandler(this.btn_TemplatePaquete_Click);
             // 
             // label4
             // 
