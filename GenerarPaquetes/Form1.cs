@@ -111,9 +111,6 @@ namespace GenerarPaquetes
             }
         
 
-
-        // ObtenerCheckboxesSeleccionados(this, modulosSeleccionados);
-
         PaqueteUatRequestDto datosPaquete = new PaqueteUatRequestDto();
             datosPaquete.BuildNumber = txt_BuildTFS.Text.Trim();
             datosPaquete.DestinationPath = txt_pathDestino.Text.Replace("\"", "").Trim();
