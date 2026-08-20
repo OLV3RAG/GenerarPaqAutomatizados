@@ -47,7 +47,9 @@ namespace GenerarPaquetes.Business
             { "DTS", new List<string> { "01_RunBook_AplicarCambiosServicioDTSMiscelaneosService.doc" } },
             { "IAdi", new List<string> { "01_RunBook_AplicarCambiosInterfazAdiSIAP.doc" } },
             { "WSCalcPrimQA", new List<string> { "01_RunBook_Ws_CalculoPrima_QA.doc" } },
-            { "CargaQA", new List<string> { "01_RunBook_WS_Carga_QA.doc" } }
+            { "CargaQA", new List<string> { "01_RunBook_WS_Carga_QA.doc" } },
+            { "BD", new List<string> { "00_RunBook_AplicarCambios_BD.doc" } },
+            { "BD_MAS", new List<string> { "00_RunBook_AplicarCambios_BD_MAS.doc" } },
         };
 
         private static readonly Dictionary<string, string[]> MapeoCarpetasFisicas = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
