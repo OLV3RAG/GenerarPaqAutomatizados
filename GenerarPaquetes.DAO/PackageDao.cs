@@ -51,5 +51,11 @@ namespace GenerarPaquetes.DAO
                 CopiarDirectorioRecursivo(subDirectorio, Path.Combine(destino, nombreSub));
             }
         }
+        public string[] ObtenerArchivos(string ruta, string patron = "*.*")
+        {
+            return Directory.Exists(ruta)
+                ? Directory.GetFiles(ruta, patron)
+                : new string[0];
+        }
     }
 }

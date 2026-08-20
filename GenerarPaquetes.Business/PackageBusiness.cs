@@ -28,21 +28,19 @@ namespace GenerarPaquetes.Business
 
                 // 1. Asegurar carpeta destino
                 _dao.CrearDirectorio(request.DestinationPath);
-                EnviarLog?.Invoke($"Destino: {request.DestinationPath}");
+                EnviarLog?.Invoke($"Ruta destino: {request.DestinationPath}");
 
                 // 2. Copiar Excel Q-Mex
                 CopiarExcelQMex(rutaDocs, request.DestinationPath);
 
-                // 3. Copiar Runbooks completos a la carpeta destino
-                CopiarCarpetaRunbooks(rutaRunbooks, request.DestinationPath);
-
-                // 4. Generar y personalizar InstruccionesLiberacion.txt
+                // 3. Generar InstruccionesLiberacion.txt con las reglas del .bat
                 ProcesarInstrucciones(rutaDocs, request);
 
-                // 5. Copiar los aplicativos seleccionados desde la carpeta UAT
+                // 4. Copiar aplicaciones y sus Runbooks específicos seleccionados
                 foreach (var app in request.SelectedApps)
                 {
                     CopiarModuloAplicativo(app, request.BuildNumber, rutaUatApps, request.DestinationPath);
+                    CopiarRunbookEspecifico(app, rutaRunbooks, request.DestinationPath);
                 }
 
                 EnviarLog?.Invoke("=== PROCESO FINALIZADO CON ÉXITO ===");
@@ -54,6 +52,28 @@ namespace GenerarPaquetes.Business
             }
         }
 
+        private void CopiarRunbookEspecifico(string app, string rutaRunbooks, string rutaDestino)
+        {
+            if (!_dao.ExisteDirectorio(rutaRunbooks))
+            {
+                return;
+            }
+
+            // Buscar archivos de Runbook que contengan el nombre del módulo
+            string[] runbooksEncontrados = _dao.ObtenerArchivos(rutaRunbooks, $"*{app}*");
+
+            foreach (string rbArchivo in runbooksEncontrados)
+            {
+                string nombreArchivo = Path.GetFileName(rbArchivo);
+                // Se copia directamente a la raíz de rutaDestino
+                string destinoFinal = Path.Combine(rutaDestino, nombreArchivo);
+
+                _dao.CopiarArchivo(rbArchivo, destinoFinal, true);
+                EnviarLog?.Invoke($"[OK] Runbook copiado: {nombreArchivo}");
+            }
+        }
+
+
         private void CopiarExcelQMex(string rutaDocs, string rutaDestino)
         {
             string excelOrigen = Path.Combine(rutaDocs, "Q-MexFile.xlsx");
@@ -62,7 +82,7 @@ namespace GenerarPaquetes.Business
             if (_dao.ExisteArchivo(excelOrigen))
             {
                 _dao.CopiarArchivo(excelOrigen, excelDestino, true);
-                EnviarLog?.Invoke("[OK] Archivo Excel Q-Mex copiado.");
+                EnviarLog?.Invoke("[OK] Excel Q-Mex copiado.");
             }
             else
             {
@@ -70,48 +90,32 @@ namespace GenerarPaquetes.Business
             }
         }
 
-        private void CopiarCarpetaRunbooks(string rutaRunbooks, string rutaDestino)
-        {
-            if (_dao.ExisteDirectorio(rutaRunbooks))
-            {
-                string destinoRunbooks = Path.Combine(rutaDestino, "Runbooks");
-                _dao.CopiarDirectorioRecursivo(rutaRunbooks, destinoRunbooks);
-                EnviarLog?.Invoke("[OK] Carpeta Runbooks copiada exitosamente.");
-            }
-            else
-            {
-                EnviarLog?.Invoke($"[AVISO] No se encontró la carpeta de Runbooks en: {rutaRunbooks}");
-            }
-        }
-
+   
         private void CopiarModuloAplicativo(string app, string build, string rutaBaseUat, string rutaDestino)
         {
-            // Opciones de estructura comunes:
-            // 1. UAT \ Build \ App
-            string rutaOpcion1 = Path.Combine(rutaBaseUat, build, app);
-            // 2. UAT \ App \ Build
-            string rutaOpcion2 = Path.Combine(rutaBaseUat, app, build);
-            // 3. UAT \ App (directa)
-            string rutaOpcion3 = Path.Combine(rutaBaseUat, app);
+            // Búsqueda en todas las posibles ubicaciones dentro de UAT
+            string ruta1 = Path.Combine(rutaBaseUat, app);                     // Directo: UAT\BatchLauncher
+            string ruta2 = Path.Combine(rutaBaseUat, build, app);              // Con Build: UAT\12345\BatchLauncher
+            string ruta3 = Path.Combine(rutaBaseUat, app, build);              // Inverso: UAT\BatchLauncher\12345
 
             string rutaOrigenFinal = string.Empty;
 
-            if (_dao.ExisteDirectorio(rutaOpcion1))
-                rutaOrigenFinal = rutaOpcion1;
-            else if (_dao.ExisteDirectorio(rutaOpcion2))
-                rutaOrigenFinal = rutaOpcion2;
-            else if (_dao.ExisteDirectorio(rutaOpcion3))
-                rutaOrigenFinal = rutaOpcion3;
+            if (_dao.ExisteDirectorio(ruta1))
+                rutaOrigenFinal = ruta1;
+            else if (_dao.ExisteDirectorio(ruta2))
+                rutaOrigenFinal = ruta2;
+            else if (_dao.ExisteDirectorio(ruta3))
+                rutaOrigenFinal = ruta3;
 
             if (!string.IsNullOrEmpty(rutaOrigenFinal))
             {
                 string carpetaDestinoApp = Path.Combine(rutaDestino, app);
                 _dao.CopiarDirectorioRecursivo(rutaOrigenFinal, carpetaDestinoApp);
-                EnviarLog?.Invoke($"[OK] {app} copiado correctamente desde: {rutaOrigenFinal}");
+                EnviarLog?.Invoke($"[OK] {app} copiado.");
             }
             else
             {
-                EnviarLog?.Invoke($"[OMITIDO] No se encontró carpeta para '{app}'. (Ruta evaluada: {rutaOpcion1})");
+                EnviarLog?.Invoke($"[OMITIDO] No existe carpeta para '{app}' en: {ruta1}");
             }
         }
 
@@ -131,18 +135,23 @@ namespace GenerarPaquetes.Business
             List<string> listaStep1 = new List<string>();
             List<string> listaStep2 = new List<string>();
 
-            bool contieneApi = request.SelectedApps.Exists(a =>
-                a.IndexOf("WebAPI", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                a.IndexOf("API", StringComparison.OrdinalIgnoreCase) >= 0);
+            // Regla 1: Si contiene API, WebAPI, PortalAPI o Datos Fiscales
+            bool contieneApiOpdf = request.SelectedApps.Exists(a =>
+                a.IndexOf("API", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                a.IndexOf("PDFiscales", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                a.IndexOf("Fiscal", StringComparison.OrdinalIgnoreCase) >= 0);
 
-            if (contieneApi)
+            if (contieneApiOpdf)
             {
                 listaStep1.Add("Generar SnapShot del servidor 10.110.10.175");
                 listaStep2.Add("Plan de reversion, restaurar SnapShot del servidor 10.110.10.175 generado en el paso 1");
             }
 
+            // Regla 2: Si contiene SIAP o cualquier servicio relacionado
             bool contieneSiap = request.SelectedApps.Exists(a =>
-                a.IndexOf("SIAP", StringComparison.OrdinalIgnoreCase) >= 0);
+                a.IndexOf("SIAP", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                a.IndexOf("BServiceSIAP", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                a.IndexOf("IDCSIAP", StringComparison.OrdinalIgnoreCase) >= 0);
 
             if (contieneSiap)
             {
@@ -150,20 +159,27 @@ namespace GenerarPaquetes.Business
                 listaStep2.Add("Plan de reversion, restaurar el respaldo generado en el paso 1 de cada runbook");
             }
 
+            // Si se seleccionaron otros módulos generales que no sean solo API o SIAP
+            if (listaStep1.Count == 0 && request.SelectedApps.Count > 0)
+            {
+                listaStep1.Add($"Respaldar versión productiva actual de los aplicativos: {string.Join(", ", request.SelectedApps)}");
+                listaStep2.Add("Plan de reversión, restaurar los respaldos generados en el paso 1");
+            }
+
             string resultadoStep1 = listaStep1.Count > 0
                 ? string.Join(Environment.NewLine + "               ", listaStep1)
-                : "N/A";
+                : "Sin pasos previos requeridos";
 
             string resultadoStep2 = listaStep2.Count > 0
                 ? string.Join(Environment.NewLine + "                   ", listaStep2)
-                : "N/A";
+                : "Sin pasos de reversión requeridos";
 
             texto = texto.Replace("destino", request.DestinationPath);
             texto = texto.Replace("step1", resultadoStep1);
             texto = texto.Replace("step2", resultadoStep2);
 
             _dao.EscribirTexto(destino, texto);
-            EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado y reemplazado.");
+            EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado y reemplazado con éxito.");
         }
     }
 }
