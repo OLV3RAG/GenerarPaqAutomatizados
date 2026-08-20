@@ -74,7 +74,6 @@
             this.label1.Size = new System.Drawing.Size(173, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "Generador de Paquetes";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
@@ -85,7 +84,6 @@
             this.label2.Size = new System.Drawing.Size(79, 16);
             this.label2.TabIndex = 1;
             this.label2.Text = "Build TFS:";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label3
             // 
@@ -103,7 +101,6 @@
             this.txt_BuildTFS.Name = "txt_BuildTFS";
             this.txt_BuildTFS.Size = new System.Drawing.Size(241, 22);
             this.txt_BuildTFS.TabIndex = 3;
-            this.txt_BuildTFS.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // txt_pathDestino
             // 
@@ -111,7 +108,6 @@
             this.txt_pathDestino.Name = "txt_pathDestino";
             this.txt_pathDestino.Size = new System.Drawing.Size(249, 22);
             this.txt_pathDestino.TabIndex = 4;
-            this.txt_pathDestino.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // btn_TemplatePaquete
             // 
@@ -121,7 +117,6 @@
             this.btn_TemplatePaquete.TabIndex = 5;
             this.btn_TemplatePaquete.Text = "Paquete Template";
             this.btn_TemplatePaquete.UseVisualStyleBackColor = true;
-            this.btn_TemplatePaquete.Click += new System.EventHandler(this.btn_TemplatePaquete_Click);
             // 
             // label4
             // 
@@ -142,7 +137,6 @@
             this.check_BatchLauncher.TabIndex = 0;
             this.check_BatchLauncher.Text = "BatchLauncher";
             this.check_BatchLauncher.UseVisualStyleBackColor = true;
-            this.check_BatchLauncher.CheckedChanged += new System.EventHandler(this.check_BatchLauncher_CheckedChanged);
             // 
             // check_BServiceSIAP
             // 
@@ -153,7 +147,6 @@
             this.check_BServiceSIAP.TabIndex = 1;
             this.check_BServiceSIAP.Text = "BusinessServiceSIAP";
             this.check_BServiceSIAP.UseVisualStyleBackColor = true;
-            this.check_BServiceSIAP.CheckedChanged += new System.EventHandler(this.check_BServiceSIAP_CheckedChanged);
             // 
             // check_CatalogsWS
             // 
@@ -164,7 +157,6 @@
             this.check_CatalogsWS.TabIndex = 2;
             this.check_CatalogsWS.Text = "CatalogsWS";
             this.check_CatalogsWS.UseVisualStyleBackColor = true;
-            this.check_CatalogsWS.CheckedChanged += new System.EventHandler(this.check_CatalogsWS_CheckedChanged);
             // 
             // check_CloseService
             // 
@@ -175,7 +167,6 @@
             this.check_CloseService.TabIndex = 3;
             this.check_CloseService.Text = "CloseService";
             this.check_CloseService.UseVisualStyleBackColor = true;
-            this.check_CloseService.CheckedChanged += new System.EventHandler(this.check_CloseService_CheckedChanged);
             // 
             // check_DTS
             // 
@@ -186,7 +177,6 @@
             this.check_DTS.TabIndex = 4;
             this.check_DTS.Text = "DTS";
             this.check_DTS.UseVisualStyleBackColor = true;
-            this.check_DTS.CheckedChanged += new System.EventHandler(this.check_DTS_CheckedChanged);
             // 
             // check_IDCSIAP
             // 
@@ -197,7 +187,6 @@
             this.check_IDCSIAP.TabIndex = 5;
             this.check_IDCSIAP.Text = "IDC_SIAP";
             this.check_IDCSIAP.UseVisualStyleBackColor = true;
-            this.check_IDCSIAP.CheckedChanged += new System.EventHandler(this.check_IDCSIAP_CheckedChanged);
             // 
             // check_IDCSIAPApi
             // 
@@ -208,7 +197,6 @@
             this.check_IDCSIAPApi.TabIndex = 6;
             this.check_IDCSIAPApi.Text = "IDC_SIAPApi";
             this.check_IDCSIAPApi.UseVisualStyleBackColor = true;
-            this.check_IDCSIAPApi.CheckedChanged += new System.EventHandler(this.check_IDCSIAPApi_CheckedChanged);
             // 
             // check_IDCMAS
             // 
@@ -219,7 +207,6 @@
             this.check_IDCMAS.TabIndex = 7;
             this.check_IDCMAS.Text = "IDCMAS";
             this.check_IDCMAS.UseVisualStyleBackColor = true;
-            this.check_IDCMAS.CheckedChanged += new System.EventHandler(this.check_IDCMAS_CheckedChanged);
             // 
             // check_PortalAPIRest
             // 
@@ -230,7 +217,6 @@
             this.check_PortalAPIRest.TabIndex = 8;
             this.check_PortalAPIRest.Text = "InstalarPortalAPIRest";
             this.check_PortalAPIRest.UseVisualStyleBackColor = true;
-            this.check_PortalAPIRest.CheckedChanged += new System.EventHandler(this.check_PortalAPIRest_CheckedChanged);
             // 
             // check_IAdi
             // 
@@ -241,7 +227,6 @@
             this.check_IAdi.TabIndex = 9;
             this.check_IAdi.Text = "InterfazAdi";
             this.check_IAdi.UseVisualStyleBackColor = true;
-            this.check_IAdi.CheckedChanged += new System.EventHandler(this.check_IAdi_CheckedChanged);
             // 
             // check_MASWeb
             // 
@@ -252,7 +237,6 @@
             this.check_MASWeb.TabIndex = 10;
             this.check_MASWeb.Text = "MASWeb";
             this.check_MASWeb.UseVisualStyleBackColor = true;
-            this.check_MASWeb.CheckedChanged += new System.EventHandler(this.check_MASWeb_CheckedChanged);
             // 
             // check_CFDI
             // 
@@ -263,7 +247,6 @@
             this.check_CFDI.TabIndex = 11;
             this.check_CFDI.Text = "PortalCFDI";
             this.check_CFDI.UseVisualStyleBackColor = true;
-            this.check_CFDI.CheckedChanged += new System.EventHandler(this.check_CFDI_CheckedChanged);
             // 
             // check_PDFiscales
             // 
@@ -274,7 +257,6 @@
             this.check_PDFiscales.TabIndex = 12;
             this.check_PDFiscales.Text = "PortalDatosFiscales";
             this.check_PDFiscales.UseVisualStyleBackColor = true;
-            this.check_PDFiscales.CheckedChanged += new System.EventHandler(this.check_PDFiscales_CheckedChanged);
             // 
             // check_ProcesarMov
             // 
@@ -285,7 +267,6 @@
             this.check_ProcesarMov.TabIndex = 13;
             this.check_ProcesarMov.Text = "ProcesarMovimiento";
             this.check_ProcesarMov.UseVisualStyleBackColor = true;
-            this.check_ProcesarMov.CheckedChanged += new System.EventHandler(this.check_ProcesarMov_CheckedChanged);
             // 
             // check_QuotationWeb
             // 
@@ -296,7 +277,6 @@
             this.check_QuotationWeb.TabIndex = 14;
             this.check_QuotationWeb.Text = "QuotationWeb";
             this.check_QuotationWeb.UseVisualStyleBackColor = true;
-            this.check_QuotationWeb.CheckedChanged += new System.EventHandler(this.check_QuotationWeb_CheckedChanged);
             // 
             // check_ServicioEmision
             // 
@@ -307,7 +287,6 @@
             this.check_ServicioEmision.TabIndex = 18;
             this.check_ServicioEmision.Text = "ServicioEmision";
             this.check_ServicioEmision.UseVisualStyleBackColor = true;
-            this.check_ServicioEmision.CheckedChanged += new System.EventHandler(this.check_ServicioEmision_CheckedChanged);
             // 
             // check_ServIntegracion
             // 
@@ -318,7 +297,6 @@
             this.check_ServIntegracion.TabIndex = 19;
             this.check_ServIntegracion.Text = "ServicioIntegracion";
             this.check_ServIntegracion.UseVisualStyleBackColor = true;
-            this.check_ServIntegracion.CheckedChanged += new System.EventHandler(this.check_ServIntegracion_CheckedChanged);
             // 
             // panel1
             // 
@@ -349,7 +327,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1336, 414);
             this.panel1.TabIndex = 7;
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
             // check_ServIntPermisos
             // 
@@ -360,7 +337,6 @@
             this.check_ServIntPermisos.TabIndex = 24;
             this.check_ServIntPermisos.Text = "ServicioIntegracionPermisos";
             this.check_ServIntPermisos.UseVisualStyleBackColor = true;
-            this.check_ServIntPermisos.CheckedChanged += new System.EventHandler(this.check_ServIntPermisos_CheckedChanged);
             // 
             // check_ServMAS
             // 
@@ -372,7 +348,6 @@
             this.check_ServMAS.Text = "ServiciosMAS";
             this.check_ServMAS.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.check_ServMAS.UseVisualStyleBackColor = true;
-            this.check_ServMAS.CheckedChanged += new System.EventHandler(this.check_ServMAS_CheckedChanged);
             // 
             // check_WSCLPortAgt
             // 
@@ -383,7 +358,6 @@
             this.check_WSCLPortAgt.TabIndex = 22;
             this.check_WSCLPortAgt.Text = "WS-CLPortalAgentes";
             this.check_WSCLPortAgt.UseVisualStyleBackColor = true;
-            this.check_WSCLPortAgt.CheckedChanged += new System.EventHandler(this.check_WSCLPortAgt_CheckedChanged);
             // 
             // check_ServDocu
             // 
@@ -394,7 +368,6 @@
             this.check_ServDocu.TabIndex = 17;
             this.check_ServDocu.Text = "ServicioDocumentacion";
             this.check_ServDocu.UseVisualStyleBackColor = true;
-            this.check_ServDocu.CheckedChanged += new System.EventHandler(this.check_ServDocu_CheckedChanged);
             // 
             // check_SIRI
             // 
@@ -405,7 +378,6 @@
             this.check_SIRI.TabIndex = 16;
             this.check_SIRI.Text = "ServiceAutomaticLoadSIRI";
             this.check_SIRI.UseVisualStyleBackColor = true;
-            this.check_SIRI.CheckedChanged += new System.EventHandler(this.check_SIRI_CheckedChanged);
             // 
             // check_RobotCFD
             // 
@@ -416,7 +388,6 @@
             this.check_RobotCFD.TabIndex = 15;
             this.check_RobotCFD.Text = "Robot_CFD";
             this.check_RobotCFD.UseVisualStyleBackColor = true;
-            this.check_RobotCFD.CheckedChanged += new System.EventHandler(this.check_RobotCFD_CheckedChanged);
             // 
             // btn_CrearPaquete
             // 
@@ -443,7 +414,6 @@
             this.txt_TerminalOutput.Name = "txt_TerminalOutput";
             this.txt_TerminalOutput.Size = new System.Drawing.Size(1300, 22);
             this.txt_TerminalOutput.TabIndex = 10;
-            this.txt_TerminalOutput.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
             // 
             // Form1
             // 
@@ -463,7 +433,6 @@
             this.Controls.Add(this.label1);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
