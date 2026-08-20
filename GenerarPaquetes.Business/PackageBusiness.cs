@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using GenerarPaquetes.DAO;
 using GenerarPaquetes.Entities.DTOs;
 
@@ -16,29 +17,74 @@ namespace GenerarPaquetes.Business
             _dao = new PackageDao();
         }
 
+        private static readonly Dictionary<string, List<string>> MapeoRunbooks = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "IDCMAS", new List<string> { "01_RunBook_AplicarCambios_IDC_MAS.doc" } },
+            { "MAS", new List<string> { "01_RunBook_AplicarCambios_IDC_MAS.doc" } },
+            { "IDCSIAP", new List<string> { "01_RunBook_AplicarCambiosSIAP.doc" } },
+            { "SIAP", new List<string> { "01_RunBook_AplicarCambiosSIAP.doc" } },
+            { "CFDI", new List<string> { "01_RunBook_ActualizarPortalCFDI.doc" } },
+            { "PortalCFDI", new List<string> { "01_RunBook_ActualizarPortalCFDI.doc" } },
+            { "RobotCFD", new List<string> { "01_RunBook_ActualizarPortalCFDI.doc" } },
+            { "IDCSIAPApi", new List<string> { "01_RunBook_AplicarCambios_IDC_SIAPApi.doc" } },
+            { "BatchLauncher", new List<string> { "01_RunBook_BatchLauncher.doc" } },
+            { "BusinessServiceSIAP", new List<string> { "01_RunBook_BusinessServiceSIAP.doc" } },
+            { "CatalogsWS", new List<string> { "01_RunBook_CatalogsWS.doc" } },
+            { "CloseService", new List<string> { "01_RunBook_Zurich.CloseServices.doc" } },
+            { "PortalAPIRest", new List<string> { "01_RunBook_InstalarPortalAPIRest.doc" } },
+            { "QuotationWeb", new List<string> { "01_RunBook_Zurich.QuotationWeb.doc" } },
+            { "ProcesarMov", new List<string> { "01_RunBook_cw_ProcesarMovimiento_PortalAgentes.doc" } },
+            { "PDFiscales", new List<string> { "00_RunBook_AplicarCambiosBasePortalDatosFiscales.doc" } },
+            { "MASWeb", new List<string> { "01_RunBook_AplicarCambiosMAS_Web.doc" } },
+            { "ServicioIntegracion", new List<string> { "01_RunBook_ServicioIntegracion.doc" } },
+            { "ServicioEmision", new List<string> { "01_RunBook_ServicioEmision.doc" } },
+            { "ServicioDocumentacion", new List<string> { "01_RunBook_AplicarCambiosServicioDocumentacion.doc" } },
+            { "SIRI", new List<string> { "01_RunBook_AplicarCambiosServicioAutomaticLoadSIRI.doc" } },
+            { "ServicioIntegracionPermisos", new List<string> { "01_RunBook_ServicioIntegracion - ConPermisos a TempMasivo.doc" } },
+            { "ServicioMAS", new List<string> { "01_RunBook_AplicarCambiosMAS_Servicios.doc" } },
+            { "WSCLPortAgt", new List<string> { "01_RunBook_WS_CL_Portal_Agentes.doc" } },
+            { "DTS", new List<string> { "01_RunBook_AplicarCambiosServicioDTSMiscelaneosService.doc" } },
+            { "IAdi", new List<string> { "01_RunBook_AplicarCambiosInterfazAdiSIAP.doc" } },
+            { "WSCalcPrimQA", new List<string> { "01_RunBook_Ws_CalculoPrima_QA.doc" } },
+            { "CargaQA", new List<string> { "01_RunBook_WS_Carga_QA.doc" } }
+        };
+
+        private static readonly Dictionary<string, string[]> MapeoCarpetasFisicas = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "IDCMAS", new[] { "IDC_MAS", "IDCMAS" } },
+            { "MAS", new[] { "IDC_MAS", "IDCMAS" } },
+            { "IDCSIAP", new[] { "IDC_SIAP", "IDCSIAP" } },
+            { "SIAP", new[] { "IDC_SIAP", "IDCSIAP" } },
+            { "CFDI", new[] { "Robot_CFD", "RobotCFD", "PortalCFDI" } },
+            { "PortalCFDI", new[] { "Robot_CFD", "RobotCFD", "PortalCFDI" } },
+            { "RobotCFD", new[] { "Robot_CFD", "RobotCFD" } },
+            { "CloseService", new[] { "Zurich.CloseServices", "CloseService" } },
+            { "QuotationWeb", new[] { "Zurich.QuotationWeb", "QuotationWeb" } },
+            { "ProcesarMov", new[] { "cw_ProcesarMovimiento_PortalAgentes", "ProcesarMov" } },
+            { "WSCLPortAgt", new[] { "WS_CL_Portal_Agentes", "WSCLPortAgt" } }
+        };
+
         public void ProcesarPaquete(PaqueteUatRequestDto request)
         {
             try
             {
+                request.DestinationPath = NormalizarRuta(request.DestinationPath);
+
                 EnviarLog?.Invoke("=== INICIANDO GENERACIÓN DE PAQUETE UAT ===");
 
                 string rutaDocs = _dao.ObtenerRutaDocumentos();
                 string rutaUatApps = _dao.ObtenerRutaTFS();
                 string rutaRunbooks = _dao.ObtenerRutaRunbooks();
 
-                // 1. Asegurar carpeta destino
                 _dao.CrearDirectorio(request.DestinationPath);
-                EnviarLog?.Invoke($"Ruta destino: {request.DestinationPath}");
+                EnviarLog?.Invoke($"Destino: {request.DestinationPath}");
 
-                // 2. Copiar Excel Q-Mex
                 CopiarExcelQMex(rutaDocs, request.DestinationPath);
-
-                // 3. Generar InstruccionesLiberacion.txt con las reglas del .bat
                 ProcesarInstrucciones(rutaDocs, request);
 
-                // 4. Copiar aplicaciones y sus Runbooks específicos seleccionados
                 foreach (var app in request.SelectedApps)
                 {
+                    EnviarLog?.Invoke($"--- Procesando: {app} ---");
                     CopiarModuloAplicativo(app, request.BuildNumber, rutaUatApps, request.DestinationPath);
                     CopiarRunbookEspecifico(app, rutaRunbooks, request.DestinationPath);
                 }
@@ -52,27 +98,13 @@ namespace GenerarPaquetes.Business
             }
         }
 
-        private void CopiarRunbookEspecifico(string app, string rutaRunbooks, string rutaDestino)
+        private string NormalizarRuta(string ruta)
         {
-            if (!_dao.ExisteDirectorio(rutaRunbooks))
-            {
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(ruta))
+                return string.Empty;
 
-            // Buscar archivos de Runbook que contengan el nombre del módulo
-            string[] runbooksEncontrados = _dao.ObtenerArchivos(rutaRunbooks, $"*{app}*");
-
-            foreach (string rbArchivo in runbooksEncontrados)
-            {
-                string nombreArchivo = Path.GetFileName(rbArchivo);
-                // Se copia directamente a la raíz de rutaDestino
-                string destinoFinal = Path.Combine(rutaDestino, nombreArchivo);
-
-                _dao.CopiarArchivo(rbArchivo, destinoFinal, true);
-                EnviarLog?.Invoke($"[OK] Runbook copiado: {nombreArchivo}");
-            }
+            return ruta.Trim().Trim('"', '\'').Trim();
         }
-
 
         private void CopiarExcelQMex(string rutaDocs, string rutaDestino)
         {
@@ -82,7 +114,7 @@ namespace GenerarPaquetes.Business
             if (_dao.ExisteArchivo(excelOrigen))
             {
                 _dao.CopiarArchivo(excelOrigen, excelDestino, true);
-                EnviarLog?.Invoke("[OK] Excel Q-Mex copiado.");
+                EnviarLog?.Invoke("[OK] Archivo Excel Q-Mex copiado.");
             }
             else
             {
@@ -90,32 +122,113 @@ namespace GenerarPaquetes.Business
             }
         }
 
-   
-        private void CopiarModuloAplicativo(string app, string build, string rutaBaseUat, string rutaDestino)
+        private void CopiarRunbookEspecifico(string app, string rutaRunbooks, string rutaDestino)
         {
-            // Búsqueda en todas las posibles ubicaciones dentro de UAT
-            string ruta1 = Path.Combine(rutaBaseUat, app);                     // Directo: UAT\BatchLauncher
-            string ruta2 = Path.Combine(rutaBaseUat, build, app);              // Con Build: UAT\12345\BatchLauncher
-            string ruta3 = Path.Combine(rutaBaseUat, app, build);              // Inverso: UAT\BatchLauncher\12345
-
-            string rutaOrigenFinal = string.Empty;
-
-            if (_dao.ExisteDirectorio(ruta1))
-                rutaOrigenFinal = ruta1;
-            else if (_dao.ExisteDirectorio(ruta2))
-                rutaOrigenFinal = ruta2;
-            else if (_dao.ExisteDirectorio(ruta3))
-                rutaOrigenFinal = ruta3;
-
-            if (!string.IsNullOrEmpty(rutaOrigenFinal))
+            if (!_dao.ExisteDirectorio(rutaRunbooks))
             {
-                string carpetaDestinoApp = Path.Combine(rutaDestino, app);
-                _dao.CopiarDirectorioRecursivo(rutaOrigenFinal, carpetaDestinoApp);
-                EnviarLog?.Invoke($"[OK] {app} copiado.");
+                EnviarLog?.Invoke($"[AVISO] Directorio de Runbooks no existe: {rutaRunbooks}");
+                return;
+            }
+
+            if (MapeoRunbooks.TryGetValue(app, out List<string> archivosRunbook))
+            {
+                foreach (string rbNombre in archivosRunbook)
+                {
+                    string origen = Path.Combine(rutaRunbooks, rbNombre);
+                    string destino = Path.Combine(rutaDestino, rbNombre);
+
+                    if (_dao.ExisteArchivo(origen))
+                    {
+                        _dao.CopiarArchivo(origen, destino, true);
+                        EnviarLog?.Invoke($"[OK] Runbook copiado: {rbNombre}");
+                    }
+                    else
+                    {
+                        EnviarLog?.Invoke($"[AVISO] No se encontró el Runbook '{rbNombre}' en: {rutaRunbooks}");
+                    }
+                }
             }
             else
             {
-                EnviarLog?.Invoke($"[OMITIDO] No existe carpeta para '{app}' en: {ruta1}");
+                EnviarLog?.Invoke($"[AVISO] No hay Runbook mapeado para: {app}");
+            }
+        }
+
+        private void CopiarModuloAplicativo(string app, string build, string rutaBaseUat, string rutaDestino)
+        {
+            if (!_dao.ExisteDirectorio(rutaBaseUat))
+            {
+                EnviarLog?.Invoke($"[ERROR] Ruta base UAT no encontrada: {rutaBaseUat}");
+                return;
+            }
+
+            string rutaOrigenFinal = string.Empty;
+
+            if (MapeoCarpetasFisicas.TryGetValue(app, out string[] posiblesCarpetas))
+            {
+                foreach (string nombreCarpeta in posiblesCarpetas)
+                {
+                    string rutaDirecta = Path.Combine(rutaBaseUat, nombreCarpeta);
+                    string rutaConBuild = Path.Combine(rutaBaseUat, build, nombreCarpeta);
+
+                    if (_dao.ExisteDirectorio(rutaDirecta))
+                    {
+                        rutaOrigenFinal = rutaDirecta;
+                        break;
+                    }
+                    if (_dao.ExisteDirectorio(rutaConBuild))
+                    {
+                        rutaOrigenFinal = rutaConBuild;
+                        break;
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(rutaOrigenFinal))
+            {
+                string r1 = Path.Combine(rutaBaseUat, app);
+                string r2 = Path.Combine(rutaBaseUat, build, app);
+
+                if (_dao.ExisteDirectorio(r1)) rutaOrigenFinal = r1;
+                else if (_dao.ExisteDirectorio(r2)) rutaOrigenFinal = r2;
+            }
+
+            if (string.IsNullOrEmpty(rutaOrigenFinal))
+            {
+                string[] subdirectorios = _dao.ObtenerDirectorios(rutaBaseUat, $"*{app}*", SearchOption.TopDirectoryOnly);
+
+                if (app.Equals("SIAP", StringComparison.OrdinalIgnoreCase) || app.Equals("IDCSIAP", StringComparison.OrdinalIgnoreCase))
+                {
+                    subdirectorios = subdirectorios
+                        .Where(dir => Path.GetFileName(dir).IndexOf("api", StringComparison.OrdinalIgnoreCase) < 0)
+                        .ToArray();
+                }
+
+                if (app.Equals("MAS", StringComparison.OrdinalIgnoreCase) || app.Equals("IDCMAS", StringComparison.OrdinalIgnoreCase))
+                {
+                    subdirectorios = subdirectorios
+                        .Where(dir => Path.GetFileName(dir).IndexOf("web", StringComparison.OrdinalIgnoreCase) < 0 &&
+                                      Path.GetFileName(dir).IndexOf("servicio", StringComparison.OrdinalIgnoreCase) < 0)
+                        .ToArray();
+                }
+
+                if (subdirectorios.Length > 0)
+                {
+                    rutaOrigenFinal = subdirectorios[0];
+                }
+            }
+
+            if (!string.IsNullOrEmpty(rutaOrigenFinal))
+            {
+                string nombreCarpetaDestino = Path.GetFileName(rutaOrigenFinal);
+                string carpetaDestinoApp = Path.Combine(rutaDestino, nombreCarpetaDestino);
+
+                _dao.CopiarDirectorioRecursivo(rutaOrigenFinal, carpetaDestinoApp);
+                EnviarLog?.Invoke($"[OK] Carpeta copiada: {nombreCarpetaDestino}");
+            }
+            else
+            {
+                EnviarLog?.Invoke($"[OMITIDO] No se localizó la carpeta física para '{app}' en UAT.");
             }
         }
 
@@ -126,7 +239,7 @@ namespace GenerarPaquetes.Business
 
             if (!_dao.ExisteArchivo(origen))
             {
-                EnviarLog?.Invoke($"[AVISO] No se encontró la plantilla de instrucciones en: {origen}");
+                EnviarLog?.Invoke($"[AVISO] No se encontró la plantilla en: {origen}");
                 return;
             }
 
@@ -135,7 +248,6 @@ namespace GenerarPaquetes.Business
             List<string> listaStep1 = new List<string>();
             List<string> listaStep2 = new List<string>();
 
-            // Regla 1: Si contiene API, WebAPI, PortalAPI o Datos Fiscales
             bool contieneApiOpdf = request.SelectedApps.Exists(a =>
                 a.IndexOf("API", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 a.IndexOf("PDFiscales", StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -147,7 +259,6 @@ namespace GenerarPaquetes.Business
                 listaStep2.Add("Plan de reversion, restaurar SnapShot del servidor 10.110.10.175 generado en el paso 1");
             }
 
-            // Regla 2: Si contiene SIAP o cualquier servicio relacionado
             bool contieneSiap = request.SelectedApps.Exists(a =>
                 a.IndexOf("SIAP", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 a.IndexOf("BServiceSIAP", StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -159,10 +270,9 @@ namespace GenerarPaquetes.Business
                 listaStep2.Add("Plan de reversion, restaurar el respaldo generado en el paso 1 de cada runbook");
             }
 
-            // Si se seleccionaron otros módulos generales que no sean solo API o SIAP
             if (listaStep1.Count == 0 && request.SelectedApps.Count > 0)
             {
-                listaStep1.Add($"Respaldar versión productiva actual de los aplicativos: {string.Join(", ", request.SelectedApps)}");
+                listaStep1.Add($"Respaldar versión productiva actual de: {string.Join(", ", request.SelectedApps)}");
                 listaStep2.Add("Plan de reversión, restaurar los respaldos generados en el paso 1");
             }
 
@@ -179,7 +289,7 @@ namespace GenerarPaquetes.Business
             texto = texto.Replace("step2", resultadoStep2);
 
             _dao.EscribirTexto(destino, texto);
-            EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado y reemplazado con éxito.");
+            EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado con éxito.");
         }
     }
 }

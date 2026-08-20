@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.IO;
 
 namespace GenerarPaquetes.DAO
@@ -8,6 +9,7 @@ namespace GenerarPaquetes.DAO
         public string ObtenerRutaDocumentos() => ConfigurationManager.AppSettings["RutaDocumentos"] ?? string.Empty;
         public string ObtenerRutaTFS() => ConfigurationManager.AppSettings["RutaTFS"] ?? string.Empty;
         public string ObtenerRutaRunbooks() => ConfigurationManager.AppSettings["RutaRunbooks"] ?? string.Empty;
+
         public bool ExisteDirectorio(string ruta) => Directory.Exists(ruta);
 
         public void CrearDirectorio(string ruta)
@@ -18,7 +20,21 @@ namespace GenerarPaquetes.DAO
             }
         }
 
+        public string[] ObtenerDirectorios(string ruta, string patron = "*", SearchOption opcion = SearchOption.TopDirectoryOnly)
+        {
+            return Directory.Exists(ruta)
+                ? Directory.GetDirectories(ruta, patron, opcion)
+                : new string[0];
+        }
+
         public bool ExisteArchivo(string ruta) => File.Exists(ruta);
+
+        public string[] ObtenerArchivos(string ruta, string patron = "*.*")
+        {
+            return Directory.Exists(ruta)
+                ? Directory.GetFiles(ruta, patron)
+                : new string[0];
+        }
 
         public void CopiarArchivo(string origen, string destino, bool sobrescribir = true)
         {
@@ -50,12 +66,6 @@ namespace GenerarPaquetes.DAO
                 string nombreSub = Path.GetFileName(subDirectorio);
                 CopiarDirectorioRecursivo(subDirectorio, Path.Combine(destino, nombreSub));
             }
-        }
-        public string[] ObtenerArchivos(string ruta, string patron = "*.*")
-        {
-            return Directory.Exists(ruta)
-                ? Directory.GetFiles(ruta, patron)
-                : new string[0];
         }
     }
 }

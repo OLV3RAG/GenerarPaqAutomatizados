@@ -113,7 +113,7 @@ namespace GenerarPaquetes
 
         PaqueteUatRequestDto datosPaquete = new PaqueteUatRequestDto();
             datosPaquete.BuildNumber = txt_BuildTFS.Text.Trim();
-            datosPaquete.DestinationPath = txt_pathDestino.Text.Replace("\"", "").Trim();
+            datosPaquete.DestinationPath = txt_pathDestino.Text;
             datosPaquete.SelectedApps = modulosSeleccionados;
 
             txt_TerminalOutput.Clear();
