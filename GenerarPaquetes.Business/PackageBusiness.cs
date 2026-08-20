@@ -25,6 +25,7 @@ namespace GenerarPaquetes.Business
             { "SIAP", new List<string> { "01_RunBook_AplicarCambiosSIAP.doc" } },
             { "CFDI", new List<string> { "01_RunBook_ActualizarPortalCFDI.doc" } },
             { "PortalCFDI", new List<string> { "01_RunBook_ActualizarPortalCFDI.doc" } },
+            { "portcfdi", new List<string> { "01_RunBook_ActualizarPortalCFDI.doc" } },
             { "RobotCFD", new List<string> { "01_RunBook_ActualizarPortalCFDI.doc" } },
             { "IDCSIAPApi", new List<string> { "01_RunBook_AplicarCambios_IDC_SIAPApi.doc" } },
             { "BatchLauncher", new List<string> { "01_RunBook_BatchLauncher.doc" } },
@@ -51,13 +52,14 @@ namespace GenerarPaquetes.Business
 
         private static readonly Dictionary<string, string[]> MapeoCarpetasFisicas = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
+            { "CFDI", new[] { "Robot_CFD", "RobotCFD", "PortalCFDI" } },
+            { "PortalCFDI", new[] { "Robot_CFD", "RobotCFD", "PortalCFDI" } },
+            { "portcfdi", new[] { "Robot_CFD", "RobotCFD", "PortalCFDI" } },
+            { "RobotCFD", new[] { "Robot_CFD", "RobotCFD" } },
             { "IDCMAS", new[] { "IDC_MAS", "IDCMAS" } },
             { "MAS", new[] { "IDC_MAS", "IDCMAS" } },
             { "IDCSIAP", new[] { "IDC_SIAP", "IDCSIAP" } },
             { "SIAP", new[] { "IDC_SIAP", "IDCSIAP" } },
-            { "CFDI", new[] { "Robot_CFD", "RobotCFD", "PortalCFDI" } },
-            { "PortalCFDI", new[] { "Robot_CFD", "RobotCFD", "PortalCFDI" } },
-            { "RobotCFD", new[] { "Robot_CFD", "RobotCFD" } },
             { "CloseService", new[] { "Zurich.CloseServices", "CloseService" } },
             { "QuotationWeb", new[] { "Zurich.QuotationWeb", "QuotationWeb" } },
             { "ProcesarMov", new[] { "cw_ProcesarMovimiento_PortalAgentes", "ProcesarMov" } },
@@ -248,7 +250,6 @@ namespace GenerarPaquetes.Business
             string descSIAP = "Cada Runbook contiene su paso de respaldo";
             string descStepTwoSIAP = "Plan de reversion, restaurar el respaldo generado en el paso 1 de cada runbook";
 
-            // Evaluar si contiene DatosFiscales / PDFiscales o WebAPI / API
             bool esPdf = request.SelectedApps.Exists(a =>
                 a.IndexOf("DatosFiscales", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 a.IndexOf("PDFiscales", StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -276,7 +277,6 @@ namespace GenerarPaquetes.Business
 
             string contenido = _dao.LeerTexto(origen);
 
-            // Reemplazos de etiquetas respetando mayúsculas y minúsculas
             contenido = contenido.Replace("step1", textoStep1);
             contenido = contenido.Replace("step2", textoStep2);
             contenido = contenido.Replace("destino", request.DestinationPath);
