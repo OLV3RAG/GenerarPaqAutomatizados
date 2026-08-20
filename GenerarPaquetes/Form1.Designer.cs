@@ -402,7 +402,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(23, 791);
+            this.label5.Location = new System.Drawing.Point(12, 710);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(109, 16);
             this.label5.TabIndex = 9;
@@ -410,9 +410,10 @@
             // 
             // txt_TerminalOutput
             // 
-            this.txt_TerminalOutput.Location = new System.Drawing.Point(32, 828);
+            this.txt_TerminalOutput.Location = new System.Drawing.Point(5, 729);
+            this.txt_TerminalOutput.Multiline = true;
             this.txt_TerminalOutput.Name = "txt_TerminalOutput";
-            this.txt_TerminalOutput.Size = new System.Drawing.Size(1300, 22);
+            this.txt_TerminalOutput.Size = new System.Drawing.Size(1354, 253);
             this.txt_TerminalOutput.TabIndex = 10;
             // 
             // Form1
