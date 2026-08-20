@@ -19,6 +19,11 @@ namespace GenerarPaquetes.Business
 
         private static readonly Dictionary<string, List<string>> MapeoRunbooks = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
         {
+            // Base de Datos
+            { "BD", new List<string> { "00_RunBook_AplicarCambios_BD.doc" } },
+            { "BD_MAS", new List<string> { "00_RunBook_AplicarCambios_BD_MAS.doc" } },
+
+            // Aplicativos
             { "IDCMAS", new List<string> { "01_RunBook_AplicarCambios_IDC_MAS.doc" } },
             { "MAS", new List<string> { "01_RunBook_AplicarCambios_IDC_MAS.doc" } },
             { "IDCSIAP", new List<string> { "01_RunBook_AplicarCambiosSIAP.doc" } },
@@ -47,9 +52,7 @@ namespace GenerarPaquetes.Business
             { "DTS", new List<string> { "01_RunBook_AplicarCambiosServicioDTSMiscelaneosService.doc" } },
             { "IAdi", new List<string> { "01_RunBook_AplicarCambiosInterfazAdiSIAP.doc" } },
             { "WSCalcPrimQA", new List<string> { "01_RunBook_Ws_CalculoPrima_QA.doc" } },
-            { "CargaQA", new List<string> { "01_RunBook_WS_Carga_QA.doc" } },
-            { "BD", new List<string> { "00_RunBook_AplicarCambios_BD.doc" } },
-            { "BD_MAS", new List<string> { "00_RunBook_AplicarCambios_BD_MAS.doc" } },
+            { "CargaQA", new List<string> { "01_RunBook_WS_Carga_QA.doc" } }
         };
 
         private static readonly Dictionary<string, string[]> MapeoCarpetasFisicas = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
@@ -83,17 +86,18 @@ namespace GenerarPaquetes.Business
                 _dao.CrearDirectorio(request.DestinationPath);
                 EnviarLog?.Invoke($"Destino: {request.DestinationPath}");
 
-                bool requiereBD = request.SelectedApps.Exists(a =>
+                // Creación de carpetas DB
+                bool tieneBD = request.SelectedApps.Exists(a =>
                     a.Equals("BD", StringComparison.OrdinalIgnoreCase) ||
                     a.Equals("BD_MAS", StringComparison.OrdinalIgnoreCase));
 
-                if (requiereBD)
+                if (tieneBD)
                 {
                     string rutaDBScripts = Path.Combine(request.DestinationPath, "DB", "Scripts");
                     string rutaDBSp = Path.Combine(request.DestinationPath, "DB", "StoredProcedures");
                     _dao.CrearDirectorio(rutaDBScripts);
                     _dao.CrearDirectorio(rutaDBSp);
-                    EnviarLog?.Invoke("[OK] Estructura de carpetas DB (Scripts/StoredProcedures) creada.");
+                    EnviarLog?.Invoke("[OK] Estructura DB creada (DB\\Scripts y DB\\StoredProcedures).");
                 }
 
                 CopiarExcelQMex(rutaDocs, request.DestinationPath);
@@ -102,8 +106,17 @@ namespace GenerarPaquetes.Business
                 foreach (var app in request.SelectedApps)
                 {
                     EnviarLog?.Invoke($"--- Procesando: {app} ---");
-                    CopiarModuloAplicativo(app, request.BuildNumber, rutaUatApps, request.DestinationPath);
-                    CopiarRunbookEspecifico(app, rutaRunbooks, request.DestinationPath);
+
+                    // Si es BD o BD_MAS solo copia su Runbook, no busca aplicaciones en UAT
+                    if (app.Equals("BD", StringComparison.OrdinalIgnoreCase) || app.Equals("BD_MAS", StringComparison.OrdinalIgnoreCase))
+                    {
+                        CopiarRunbookEspecifico(app, rutaRunbooks, request.DestinationPath);
+                    }
+                    else
+                    {
+                        CopiarModuloAplicativo(app, request.BuildNumber, rutaUatApps, request.DestinationPath);
+                        CopiarRunbookEspecifico(app, rutaRunbooks, request.DestinationPath);
+                    }
                 }
 
                 EnviarLog?.Invoke("=== PROCESO FINALIZADO CON ÉXITO ===");
