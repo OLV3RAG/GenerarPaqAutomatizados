@@ -139,8 +139,9 @@ namespace GenerarPaquetes.Business
 
             _dao.EscribirTexto(archivoScripts, string.Empty);   
             _dao.EscribirTexto(archivoSp, string.Empty);
-            _dao.EscribirTexto(archivoFunciones, string.Empty); 
+            _dao.EscribirTexto(archivoFunciones, string.Empty);
 
+            EnviarLog?.Invoke("[OK] Archivos SQL generados correctamente en los respectivos directorios");
             EnviarLog?.Invoke("[OK] Generados directorios: DB\\Scripts y DB\\StoredProcedures");
         }
 
