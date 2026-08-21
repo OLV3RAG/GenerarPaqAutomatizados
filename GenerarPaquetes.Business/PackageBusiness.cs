@@ -137,9 +137,9 @@ namespace GenerarPaquetes.Business
             string archivoSp = Path.Combine(rutaDBSp, "StoredProcedures_1.sql");
             string archivoFunciones = Path.Combine(rutaDBFunciones, "Funciones_1.sql");
 
-            _dao.EscribirTexto(archivoScripts, string.Empty);
+            _dao.EscribirTexto(archivoScripts, string.Empty);   
             _dao.EscribirTexto(archivoSp, string.Empty);
-            _dao.EscribirTexto(archivoFunciones, string.Empty);
+            _dao.EscribirTexto(archivoFunciones, string.Empty); 
 
             EnviarLog?.Invoke("[OK] Generados directorios: DB\\Scripts y DB\\StoredProcedures");
         }
