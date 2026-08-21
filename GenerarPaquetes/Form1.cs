@@ -135,8 +135,8 @@ namespace GenerarPaquetes
 
                 MessageBox.Show("Paquete UAT armado con éxito.", "Finalizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            
-                ReiniciarFormulario(this);
+
+                ReiniciarForm(this);
                 txt_BuildTFS.Focus();
             }
             catch (Exception ex)
@@ -148,26 +148,23 @@ namespace GenerarPaquetes
             {
                 btn_CrearPaquete.Enabled = true;
             }
-        }
+        }   
 
-        private void ReiniciarFormulario(Control contenedor)
+        private void ReiniciarForm(Control contenedor)
         {
             foreach (Control ctrl in contenedor.Controls)
             {
-        
-                if (ctrl is CheckBox chk)
+                if(ctrl is CheckBox chk)
                 {
                     chk.Checked = false;
                 }
-         
                 else if (ctrl is TextBox txt && txt != txt_TerminalOutput)
                 {
                     txt.Clear();
                 }
-
-                if (ctrl.HasChildren)
+                if(ctrl.HasChildren)
                 {
-                    ReiniciarFormulario(ctrl);
+                    ReiniciarForm(ctrl);
                 }
             }
         }
