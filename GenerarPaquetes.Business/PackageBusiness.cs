@@ -329,5 +329,55 @@ namespace GenerarPaquetes.Business
             _dao.EscribirTexto(destino, contenido);
             EnviarLog?.Invoke("[OK] InstruccionesLiberacion.txt generado y reemplazado con éxito.");
         }
+
+        public List<string> DetectarAppsEnTFS(string buildNumber)
+        {
+            List<string> appsEncontradas = new List<string>();
+            string rutaBaseUat = _dao.ObtenerRutaTFS();
+
+            if (!_dao.ExisteDirectorio(rutaBaseUat))
+            {
+                EnviarLog?.Invoke($"[ERROR] Ruta base TFS no encontrada: {rutaBaseUat}");
+                return appsEncontradas;
+            }
+
+            string rutaBuild = Path.Combine(rutaBaseUat, buildNumber);
+            if (!_dao.ExisteDirectorio(rutaBuild))
+            {
+                EnviarLog?.Invoke($"[ERROR] Ruta de build no encontrada: {rutaBuild}");
+                return appsEncontradas;
+            }
+
+            string[] subdirectorios = _dao.ObtenerDirectorios(rutaBuild, "*", SearchOption.TopDirectoryOnly);
+
+            foreach (string subdir in subdirectorios)
+            {
+                string nombreCarpeta = Path.GetFileName(subdir);
+                bool matchEncontrado = false;
+
+                // Busca si la carpeta de la aplicacion coincide con algun alias que ya este registrado
+                foreach (var kvp in MapeoCarpetasFisicas)
+                {
+                    if (kvp.Value.Any(alias => nombreCarpeta.IndexOf(alias, StringComparison.OrdinalIgnoreCase) >= 0))
+                    {
+                        if (!appsEncontradas.Contains(kvp.Key, StringComparer.OrdinalIgnoreCase))
+                        {
+                            appsEncontradas.Add(kvp.Key);
+                        }
+                        matchEncontrado = true;
+                        break;
+                    }
+                }
+
+                // Si el alias no esta en el diccionario que se hizo, se agrega el nombre directo a la carpeta
+                if (!matchEncontrado && !appsEncontradas.Contains(nombreCarpeta, StringComparer.OrdinalIgnoreCase))
+                {
+                    appsEncontradas.Add(nombreCarpeta);
+                }
+            }
+
+            return appsEncontradas;
+        }
     }
+    
 }
