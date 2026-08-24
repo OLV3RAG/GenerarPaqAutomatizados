@@ -229,7 +229,84 @@ namespace GenerarPaquetes
 
         private void btn_TemplatePaquete_Click(object sender, EventArgs e)
         {
+            string buildNumber = txt_BuildTFS.Text.Trim();
 
+            if (string.IsNullOrWhiteSpace(buildNumber))
+            {
+                MessageBox.Show("Ingresa el número de Build de TFS para escanear los aplicativos.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txt_BuildTFS.Focus();
+                return;
+            }
+
+            txt_TerminalOutput.Clear();
+            MostrarLog($"[INFO] Escaneando compilados en TFS para el Build: {buildNumber}...");
+
+            try
+            {
+                PackageBusiness negocio = new PackageBusiness();
+                negocio.EnviarLog = MostrarLog;
+
+                List<string> appsDetectadas = negocio.DetectarAppsEnTFS(buildNumber);
+
+                if (appsDetectadas.Count == 0)
+                {
+                    MessageBox.Show("No se encontraron carpetas de aplicativos en la ruta de la Build indicada.", "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // 1. Limpiar todos los CheckBoxes antes de marcar los nuevos
+                LimpiarCheckboxes(this);
+
+                // 2. Diccionario que relaciona la clave detectada con el control CheckBox de tu Form
+                var mapaControles = new Dictionary<string, CheckBox>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "IDCMAS", check_IDCMAS },
+            { "MAS", check_IDCMAS },
+            { "IDCSIAP", check_IDCSIAP },
+            { "SIAP", check_IDCSIAP },
+            { "CFDI", check_CFDI },
+            { "PortalCFDI", check_CFDI },
+            { "RobotCFD", check_RobotCFD },
+            { "IDCSIAPApi", check_IDCSIAPApi },
+            { "BatchLauncher", check_BatchLauncher },
+            { "BusinessServiceSIAP", check_BServiceSIAP },
+            { "CatalogsWS", check_CatalogsWS },
+            { "CloseService", check_CloseService },
+            { "PortalAPIRest", check_PortalAPIRest },
+            { "QuotationWeb", check_QuotationWeb },
+            { "ProcesarMov", check_ProcesarMov },
+            { "PDFiscales", check_PDFiscales },
+            { "MASWeb", check_MASWeb },
+            { "ServicioIntegracion", check_ServIntegracion },
+            { "ServicioEmision", check_ServicioEmision },
+            { "ServicioDocumentacion", check_ServDocu },
+            { "SIRI", check_SIRI },
+            { "ServicioIntegracionPermisos", check_ServIntPermisos },
+            { "ServicioMAS", check_ServMAS },
+            { "WSCLPortAgt", check_WSCLPortAgt },
+            { "DTS", check_DTS },
+            { "IAdi", check_IAdi },
+          
+        };
+
+                // 3. Marcar las casillas encontradas
+                int contadorMarcados = 0;
+                foreach (string app in appsDetectadas)
+                {
+                    if (mapaControles.TryGetValue(app, out CheckBox chk) && chk != null)
+                    {
+                        chk.Checked = true;
+                        contadorMarcados++;
+                    }
+                }
+
+                MostrarLog($"[OK] Detección finalizada. Se seleccionaron {contadorMarcados} aplicativos automáticamente.");
+            }
+            catch (Exception ex)
+            {
+                MostrarLog($"[ERROR] Error al consultar TFS: {ex.Message}");
+                MessageBox.Show("Error durante la detección: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
