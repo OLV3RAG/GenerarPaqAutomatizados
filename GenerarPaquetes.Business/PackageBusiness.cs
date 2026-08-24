@@ -9,12 +9,12 @@ namespace GenerarPaquetes.Business
 {
     public class PackageBusiness
     {
-        private readonly PackageDao _dao;
+        private readonly Utilities _dao;
         public Action<string>? EnviarLog { get; set; }
 
         public PackageBusiness()
         {
-            _dao = new PackageDao();
+            _dao = new Utilities();
         }
 
         private static readonly Dictionary<string, List<string>> MapeoRunbooks = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)

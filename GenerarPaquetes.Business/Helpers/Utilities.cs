@@ -4,7 +4,7 @@ using System.IO;
 
 namespace GenerarPaquetes.DAO
 {
-    public class PackageDao
+    public class Utilities
     {
         public string ObtenerRutaDocumentos() => ConfigurationManager.AppSettings["RutaDocumentos"] ?? string.Empty;
         public string ObtenerRutaTFS() => ConfigurationManager.AppSettings["RutaTFS"] ?? string.Empty;
